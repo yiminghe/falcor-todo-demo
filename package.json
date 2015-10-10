@@ -1,0 +1,51 @@
+{
+  "name": "rc-falcor-todo",
+  "version": "1.0.0",
+  "description": "falcor-todo ui component for react",
+  "keywords": [
+    "react",
+    "react-component",
+    "react-falcor-todo",
+    "falcor-todo"
+  ],
+  "homepage": "https://github.com/react-component/falcor-todo",
+  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/react-component/falcor-todo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/react-component/falcor-todo/issues"
+  },
+  "files":["lib", "assets/*.css"],
+  "licenses": "MIT",
+  
+  "main":"./lib/index",
+  "config":{
+    "port": 8000
+  },
+  "scripts": {
+    "build": "rc-tools run build",
+    "gh-pages": "rc-tools run gh-pages",
+    "pub": "rc-tools run pub",
+    "lint": "rc-tools run lint",
+    "karma": "rc-tools run karma",
+    "saucelabs": "rc-tools run saucelabs",
+    "browser-test": "rc-tools run browser-test",
+    "browser-test-cover": "rc-tools run browser-test-cover"
+  },
+  "devDependencies": {
+    "expect.js": "0.3.x",
+    "precommit-hook": "1.x",
+    "rc-server": "3.x",
+    "rc-tools": "4.x",
+    "react": "0.13.x",
+
+    "falcor": "^0.1.13",
+    "falcor-koa": "0.1.0-alpha",
+    "falcor-router": "^0.2.9"
+  },
+  "precommit": [
+    "lint"
+  ]
+}
