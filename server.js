@@ -1,8 +1,9 @@
 var path = require('path');
 var staticDir = path.join(__dirname, 'static');
-var app = require('rc-server')();
+var app = require('koa')();
 var FalcorRouter = require('falcor-router');
-var falcorKoa = require('falcor-koa');
+var falcorKoa = require('./server/falcor-koa');
+var mount = require('koa-mount');
 var todos = [
   {
     id: '1',
@@ -36,21 +37,66 @@ var todos = [
 ];
 
 var todosMap = {};
-todos.forEach((t)=> {
+todos.forEach(function (t) {
   todosMap[t.id] = t;
 });
 
 var router = new FalcorRouter([
   {
+    route: 'todoById[{integers}][{keys}]',
+    set(args) {
+      return new Promise(function (resolve) {
+        setTimeout(function () {
+          var ret = [];
+          var todoById = args.todoById;
+          for (var id in todoById) {
+            var target = todoById[id];
+            for (var p in target) {
+              todosMap[id][p] = todoById[id][p];
+              ret.push({
+                path: ['todoById', id, p],
+                value: todoById[id][p]
+              });
+            }
+          }
+          resolve(ret);
+        }, 100);
+      });
+    }
+  },
+
+  {
+    route: 'todoById[{integers:ids}][{keys:ps}]',
+    get(args) {
+      return new Promise(function (resolve) {
+        setTimeout(function () {
+          var ret = [];
+          var ids = args.ids;
+          var ps = args.ps;
+          console.log(args);
+          ps.forEach(function (p) {
+            ids.forEach(function (id) {
+              ret.push({
+                path: ['todoById', id, p],
+                value: todosMap[id][p]
+              });
+            });
+          });
+          resolve(ret);
+        }, 100);
+      });
+    }
+  },
+  {
     route: 'todo.top[{ranges:r}]',
     get(args) {
       return new Promise(function (resolve) {
         setTimeout(function () {
-          var sortedTodos = todos.concat().sort((t1, t2)=> {
+          var sortedTodos = todos.concat().sort(function (t1, t2) {
             return t2.priority - t1.priority;
           }).slice(args.r[0].from, args.r[0].to + 1);
           var index = args.r[0].from;
-          var refs = sortedTodos.map((t, i)=> {
+          var refs = sortedTodos.map(function (t, i) {
             return {
               path: ['todo', 'top', index++],
               value: {
@@ -59,7 +105,7 @@ var router = new FalcorRouter([
               }
             }
           });
-          var topTodoMaps = sortedTodos.map((t)=> {
+          var topTodoMaps = sortedTodos.map(function (t) {
             return ({
               path: ['todoById', t.id],
               value: todosMap[t.id]
@@ -77,11 +123,11 @@ var router = new FalcorRouter([
     get(args) {
       return new Promise(function (resolve) {
         setTimeout(function () {
-          var sortedTodos = todos.concat().sort((t1, t2)=> {
+          var sortedTodos = todos.concat().sort(function (t1, t2) {
             return t1.priority - t2.priority;
           }).slice(args.r[0].from, args.r[0].to + 1);
           var index = args.r[0].from;
-          var refs = sortedTodos.map((t, i)=> {
+          var refs = sortedTodos.map(function (t, i) {
             return {
               path: ['todo', 'bottom', index++],
               value: {
@@ -90,7 +136,7 @@ var router = new FalcorRouter([
               }
             }
           });
-          var topTodoMaps = sortedTodos.map((t)=> {
+          var topTodoMaps = sortedTodos.map(function (t) {
             return ({
               path: ['todoById', t.id],
               value: todosMap[t.id]
@@ -121,7 +167,7 @@ var router = new FalcorRouter([
           }).filter(function (v) {
             return !!v
           });
-          var maps = todos.map((t, i)=> {
+          var maps = todos.map(function (t, i) {
             if (i > args.r[0].to || i < args.r[0].from) {
               return null;
             }
@@ -139,8 +185,11 @@ var router = new FalcorRouter([
     }
   }]);
 
-app.get('/model.json', falcorKoa.dataSourceRoute(router));
+var route = falcorKoa.dataSourceRoute(router);
+app.use(require('koa-body')());
+app.use(mount('/model.json', route));
 
+require('rc-server')(app);
 app.listen(9001);
 
 console.log('listening at: 9001');
