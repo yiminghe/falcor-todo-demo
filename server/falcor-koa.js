@@ -30,12 +30,14 @@ function requestToContext(req) {
   return Object.freeze(context);
 }
 
-function dataSourceRoute(dataSource) {
+function dataSourceRoute(handler) {
   return function* (next) {
     var _this = this;
 
+    var dataSource = yield handler.call(this, next);
+
     if (!dataSource) {
-      this['throw']('Undefined data source', 500);
+      return;
     }
 
     var ctx = requestToContext(this.request);

@@ -41,7 +41,7 @@ todos.forEach(function (t) {
   todosMap[t.id] = t;
 });
 
-var router = new FalcorRouter([
+var BaseRouter = FalcorRouter.createClass([
   {
     route: 'todoById[{integers}][{keys}]',
     set(args) {
@@ -90,8 +90,10 @@ var router = new FalcorRouter([
   {
     route: 'todo.top[{ranges:r}]',
     get(args) {
+      var ctx = this.ctx;
       return new Promise(function (resolve) {
         setTimeout(function () {
+          console.log(ctx.url);
           var sortedTodos = todos.concat().sort(function (t1, t2) {
             return t2.priority - t1.priority;
           }).slice(args.r[0].from, args.r[0].to + 1);
@@ -183,11 +185,20 @@ var router = new FalcorRouter([
         }, 100);
       });
     }
-  }]);
+  }
+]);
 
-var route = falcorKoa.dataSourceRoute(router);
+var MyRouter = function (ctx) {
+  BaseRouter.call(this);
+  this.ctx = ctx;
+};
+
+MyRouter.prototype = Object.create(BaseRouter.prototype);
+
 app.use(require('koa-body')());
-app.use(mount('/model.json', route));
+app.use(mount('/model.json', falcorKoa.dataSourceRoute(function *(next) {
+  return new MyRouter(this);
+})));
 
 require('rc-server')(app);
 app.listen(9001);
