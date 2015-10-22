@@ -151,6 +151,19 @@ var BaseRouter = FalcorRouter.createClass([
     }
   },
   {
+    route: 'todo.length',
+    get(args) {
+      return new Promise(function (resolve) {
+        setTimeout(function () {
+          resolve({
+            path: ['todo', 'length'],
+            value: todos.length
+          });
+        }, 100);
+      });
+    }
+  },
+  {
     route: 'todo.default[{ranges:r}]',
     get(args) {
       return new Promise(function (resolve) {
