@@ -1,26 +1,42 @@
 import React from 'react';
 import model from './model';
 import Table from 'antd/lib/table';
-
-var columns = [{
-  title: '名字',
-  dataIndex: 'name'
-}, {
-  title: '优先级',
-  dataIndex: 'priority'
-}];
+import GlobalEvent from './GlobalEvent';
 
 var pageSize = 2;
 
 var DefaultTodos = React.createClass({
   getInitialState() {
+    var self = this;
+    var columns = [{
+      title: '名字',
+      dataIndex: 'name'
+    }, {
+      title: '优先级',
+      dataIndex: 'priority'
+    }, {
+      title: '操作',
+      dataIndex: 'id',
+      render(id) {
+        return <a onClick={self.increase.bind(self,id)}>increase priority</a>;
+      }
+    }];
     return {
       loading: true,
+      columns: columns,
       data: [],
       currentPage: 1,
       total: 0,
     };
   },
+
+  increase(id) {
+    model.call('actions.increasePriority', [id]).then((d)=> {
+      this.fetchData(this.state.currentPage);
+      GlobalEvent.emit('priorityChange');
+    });
+  },
+
   componentDidMount() {
     this.fetchData(1);
   },
@@ -50,7 +66,7 @@ var DefaultTodos = React.createClass({
   },
   render(){
     const state = this.state;
-    return <Table columns={columns}
+    return <Table columns={state.columns}
                   rowKey={(r)=>r.id}
                   dataSource={state.data}
                   pagination={

@@ -64,6 +64,17 @@ var BaseRouter = FalcorRouter.createClass([
       });
     }
   },
+  {
+    route: 'actions.increasePriority',
+    call(path, args){
+      var id = args[0];
+      todosMap[id].priority++;
+      return {
+        path: ['todoById', id, 'priority'],
+        value: todosMap[id].priority
+      };
+    }
+  },
 
   {
     route: 'todoById[{integers:ids}][{keys:ps}]',
@@ -73,7 +84,6 @@ var BaseRouter = FalcorRouter.createClass([
           var ret = [];
           var ids = args.ids;
           var ps = args.ps;
-          console.log(args);
           ps.forEach(function (p) {
             ids.forEach(function (id) {
               ret.push({
@@ -93,7 +103,6 @@ var BaseRouter = FalcorRouter.createClass([
       var ctx = this.ctx;
       return new Promise(function (resolve) {
         setTimeout(function () {
-          console.log(ctx.url);
           var sortedTodos = todos.concat().sort(function (t1, t2) {
             return t2.priority - t1.priority;
           }).slice(args.r[0].from, args.r[0].to + 1);
