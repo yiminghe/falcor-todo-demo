@@ -33,7 +33,7 @@
     "saucelabs": "rc-tools run saucelabs",
     "browser-test": "rc-tools run browser-test",
     "browser-test-cover": "rc-tools run browser-test-cover",
-    "validate": "npm ls"
+    "validate": ""
   },
   "devDependencies": {
     "antd": "~0.10.0-beta4",
@@ -50,9 +50,12 @@
     "rc-tools": "4.x",
     "react": "~0.14.0",
     "react-dom": "~0.14.0",
+    "roof": "~0.4.0",
     "url": "~0.11.0"
   },
   "pre-commit": [
     "lint"
-  ]
+  ],
+  "dependencies": {
+  }
 }
