@@ -2,6 +2,7 @@ import React from 'react';
 import model from './model';
 import Table from 'antd/lib/table';
 import GlobalEvent from './GlobalEvent';
+import Roof from 'roof';
 
 var columns = [{
   title: '名字',
@@ -11,47 +12,23 @@ var columns = [{
   dataIndex: 'priority'
 }];
 
-var TopTodos = React.createClass({
+var TopTodos = Roof.createContainer({
+  cursors : {
+    topTodos : 'topTodos'
+  },
   getInitialState() {
     return {
-      loading: true,
-      data: [],
     };
   },
-  fetch() {
-    model.get(`todo.top[0..1]["name","done","id","priority"]`).then((d)=> {
-      var data = [];
-      var ret = d.json.todo.top;
-      Object.keys(ret).forEach((k)=> {
-        data.push(ret[k]);
-      });
-      this.setState({
-        data,
-        loading: false
-      })
-    });
-  },
-  onPriorityChange() {
-    model.invalidate('todo.top');
-    this.fetch();
-  },
   componentDidMount() {
-    GlobalEvent.on('priorityChange', this.onPriorityChange);
-    this.fetch();
-  },
-  onPagerChange(pageNum) {
-    this.setState({
-      loading: true
-    });
-    this.fetchData(pageNum);
+    this.props.topTodos.fetchTop();
   },
   render(){
-    const state = this.state;
     return <Table columns={columns}
                   rowKey={(r)=>r.id}
-                  dataSource={state.data}
+                  dataSource={this.props.topTodos.toArray()}
                   pagination={false}
-                  className={state.loading?'ant-table-loading':''}/>
+                  className={this.props.topTodos.is('fetchTop.processing')?'ant-table-loading':''}/>
   }
 });
 

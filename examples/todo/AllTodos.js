@@ -2,10 +2,12 @@ import React from 'react';
 import model from './model';
 import Table from 'antd/lib/table';
 import GlobalEvent from './GlobalEvent';
+import Roof from 'roof';
 
-var pageSize = 2;
-
-var DefaultTodos = React.createClass({
+var DefaultTodos = Roof.createContainer({
+  cursors : {
+    allTodos : 'allTodos'
+  },
   getInitialState() {
     var self = this;
     var columns = [{
@@ -29,55 +31,29 @@ var DefaultTodos = React.createClass({
       total: 0,
     };
   },
-
   increase(id) {
-    model.call('actions.increasePriority', [id]).then((d)=> {
-      this.fetchData(this.state.currentPage);
-      GlobalEvent.emit('priorityChange');
-    });
+    this.props.allTodos.increase(id);
   },
-
   componentDidMount() {
-    this.fetchData(1);
-  },
-  fetchData(pageNum){
-    var start = (pageNum - 1) * pageSize;
-    var end = start + pageSize - 1;
-    model.get(`todo.default[${start}..${end}]["name","done","id","priority"]`, 'todo.length').then((d)=> {
-      var data = [];
-      var ret = d.json.todo.default;
-      var total = d.json.todo.length;
-      Object.keys(ret).forEach((k)=> {
-        data.push(ret[k]);
-      });
-      this.setState({
-        data,
-        currentPage: pageNum,
-        loading: false,
-        total: total,
-      })
-    });
+    this.props.allTodos.fetchAll(1);
   },
   onPagerChange(pageNum) {
-    this.setState({
-      loading: true
-    });
-    this.fetchData(pageNum);
+    this.props.allTodos.fetchAll(pageNum);
   },
   render(){
-    const state = this.state;
-    return <Table columns={state.columns}
+    const allTodos = this.props.allTodos;
+    return <Table columns={this.state.columns}
                   rowKey={(r)=>r.id}
-                  dataSource={state.data}
+                  dataSource={allTodos.toArray()}
                   pagination={
-                  state.total ? {
-                    current:state.currentPage,
-                    total:state.total,
-                    pageSize:pageSize,
+                  allTodos.total ? {
+                    current:allTodos.currentPage,
+                    total:allTodos.total,
+                    pageSize:allTodos.pageSize,
                     onChange:this.onPagerChange,
                   }:false
                   }
-                  className={state.loading?'ant-table-loading':''}/>
+                  className={this.props.allTodos.is(['fetchAll.processing','increase.processing'])?'ant-table-loading':''}/>
   }
 });
 
