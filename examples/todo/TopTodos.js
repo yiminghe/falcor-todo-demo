@@ -1,7 +1,6 @@
 import React from 'react';
 import model from './model';
 import Table from 'antd/lib/table';
-import GlobalEvent from './GlobalEvent';
 import Roof from 'roof';
 
 var columns = [{

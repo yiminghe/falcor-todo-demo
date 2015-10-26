@@ -1,7 +1,6 @@
 import React from 'react';
 import model from './model';
 import Table from 'antd/lib/table';
-import GlobalEvent from './GlobalEvent';
 import Roof from 'roof';
 
 var DefaultTodos = Roof.createContainer({
@@ -24,11 +23,7 @@ var DefaultTodos = Roof.createContainer({
       }
     }];
     return {
-      loading: true,
-      columns: columns,
-      data: [],
-      currentPage: 1,
-      total: 0,
+      columns: columns
     };
   },
   increase(id) {
@@ -47,7 +42,7 @@ var DefaultTodos = Roof.createContainer({
                   dataSource={allTodos.toArray()}
                   pagination={
                   allTodos.total ? {
-                    current:allTodos.currentPage,
+                    current:allTodos.pageNum,
                     total:allTodos.total,
                     pageSize:allTodos.pageSize,
                     onChange:this.onPagerChange,

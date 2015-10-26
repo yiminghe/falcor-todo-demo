@@ -1,7 +1,5 @@
 // use jsx to render html, do not modify simple.html
 
-window.global = window
-
 import 'antd/lib/index.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
