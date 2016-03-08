@@ -1,12 +1,13 @@
 var path = require('path');
-var staticDir = path.join(__dirname, 'static');
-var app = require('koa')();
 var falcorKoaRouter = require('falcor-koa-router');
-var mount = require('koa-mount');
 
-function wait(ms) {
+var port = process.env.npm_package_config_port || 8000;
+
+var app = require('rc-tools/lib/server/')();
+
+function wait() {
   return function (done) {
-    setTimeout(done, ms);
+    setTimeout(done, 500);
   }
 }
 
@@ -41,14 +42,12 @@ var todos = [
     done: false,
   }
 ];
-
 var todosMap = {};
 todos.forEach(function (t) {
   todosMap[t.id] = t;
 });
 
-app.use(require('koa-body')());
-app.use(mount('/model.json', falcorKoaRouter.routes([
+const router = falcorKoaRouter.routes([
   {
     route: 'todoById[{integers}][{keys}]',
     set: function* (args) {
@@ -70,7 +69,8 @@ app.use(mount('/model.json', falcorKoaRouter.routes([
   },
   {
     route: 'actions.increasePriority',
-    call(path, args){
+    call: function* (path, args) {
+      yield wait(100);
       var id = args[0];
       todosMap[id].priority++;
       return {
@@ -79,7 +79,6 @@ app.use(mount('/model.json', falcorKoaRouter.routes([
       };
     }
   },
-
   {
     route: 'todoById[{integers:ids}][{keys:ps}]',
     get(args) {
@@ -194,9 +193,9 @@ app.use(mount('/model.json', falcorKoaRouter.routes([
       return (maps.concat(refs));
     }
   }
-])));
+]);
+app.get('/model.json', router);
+app.post('/model.json', router);
+app.listen(port);
 
-require('rc-server')(app);
-app.listen(9001);
-
-console.log('listening at: 9001');
+console.log(`listen at ${port}`);

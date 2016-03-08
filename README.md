@@ -1,6 +1,6 @@
 # falcor-todo-demo
 
-todo demo using falcor and react
+todo demo using falcor react redux redux-saga
 
 ## run
 
